@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'json'
+
 # Class to play and save the game
 class Game
   attr_reader :word, :word_arr
@@ -15,6 +17,15 @@ class Game
 
   def play_game
     while word_arr.filter { |word| word == '_' }.length.positive? && @remaining_guesses > 0
+      puts 'Do you want to play or save the game? (1) save, else play'
+      option = gets.chomp.to_i
+      if option == 1
+        json_string = to_json
+        file = File.open('test.json', 'w')
+        file.write(json_string)
+        puts json_string
+        return
+      end
       puts 'Input a character'
       char = gets.chomp[0].downcase
       play_round(char)
@@ -24,6 +35,10 @@ class Game
   end
 
   private
+
+  def to_json
+    {'word' => @word, 'word_arr' => @word_arr, 'incorrect' => @incorrect, 'correct' => @correct, 'remaining_guesses' => @remaining_guesses}.to_json
+  end
 
   def play_round(char)
     if word.include?(char)
@@ -48,10 +63,17 @@ class Game
       .filter { |line| line.length >= 5 && line.length <= 12 }
       .sample
   end
+
 end
 
+puts 'Press 1 to load the game'
 contents = File.readlines('google-10000-english-no-swears.txt')
-game = Game.new(contents)
-won = game.play_game
-message = won ? 'You won!' : 'You lost!'
-puts message
+if gets.chomp.to_i == 1
+  game = Game.new(contents)
+  game.unserialize(game.serialize)
+else
+  game = Game.new(contents)
+  won = game.play_game
+  message = won ? 'You won!' : 'You lost!'
+  puts message
+end
