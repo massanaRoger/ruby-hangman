@@ -34,6 +34,21 @@ class Game
     @remaining_guesses != 0
   end
 
+
+  def self.from_json string
+    data = JSON.load File.read(string)
+    p data 
+    self.new(data['word'], data['word_arr'], data['incorrect'], data['correct'], data['remaining_guesses'])
+  end
+
+  def initialize(word, word_arr, incorrect, correct, remaining_guesses)
+    @word = word
+    @word_arr = word_arr
+    @incorrect = incorrect
+    @correct = correct
+    @remaining_guesses = remaining_guesses
+  end
+  
   private
 
   def to_json
@@ -68,12 +83,7 @@ end
 
 puts 'Press 1 to load the game'
 contents = File.readlines('google-10000-english-no-swears.txt')
-if gets.chomp.to_i == 1
-  game = Game.new(contents)
-  game.unserialize(game.serialize)
-else
-  game = Game.new(contents)
-  won = game.play_game
-  message = won ? 'You won!' : 'You lost!'
-  puts message
-end
+game = gets.chomp.to_i == 1 ? Game.from_json('test.json') : Game.new(contents)
+won = game.play_game
+message = won ? 'You won!' : 'You lost!'
+puts message
