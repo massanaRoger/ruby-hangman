@@ -16,7 +16,7 @@ class Game
   end
 
   def play_game
-    while word_arr.filter { |word| word == '_' }.length.positive? && @remaining_guesses > 0
+    while word_arr.filter { |word| word == '_' }.length.positive? && @remaining_guesses.positive?
       puts 'Do you want to play or save the game? (1) save, else play'
       option = gets.chomp.to_i
       if option == 1
@@ -34,11 +34,10 @@ class Game
     @remaining_guesses != 0
   end
 
-
-  def self.from_json string
-    data = JSON.load File.read(string)
-    p data 
-    self.new(data['word'], data['word_arr'], data['incorrect'], data['correct'], data['remaining_guesses'])
+  def self.from_json(string)
+    data = JSON.parse File.read(string)
+    p data
+    new(data['word'], data['word_arr'], data['incorrect'], data['correct'], data['remaining_guesses'])
   end
 
   def initialize(word, word_arr, incorrect, correct, remaining_guesses)
@@ -48,11 +47,12 @@ class Game
     @correct = correct
     @remaining_guesses = remaining_guesses
   end
-  
+
   private
 
-  def to_json
-    {'word' => @word, 'word_arr' => @word_arr, 'incorrect' => @incorrect, 'correct' => @correct, 'remaining_guesses' => @remaining_guesses}.to_json
+  def to_json(*_args)
+    { 'word' => @word, 'word_arr' => @word_arr, 'incorrect' => @incorrect, 'correct' => @correct,
+      'remaining_guesses' => @remaining_guesses }.to_json
   end
 
   def play_round(char)
@@ -78,7 +78,6 @@ class Game
       .filter { |line| line.length >= 5 && line.length <= 12 }
       .sample
   end
-
 end
 
 puts 'Press 1 to load the game'
